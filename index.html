@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BidMaster Pro - מערכת אינטליגנציה למכרזים</title>
-    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
     <style>
@@ -14,235 +11,260 @@
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.05); }
         .live-indicator { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
-        /* עיצוב פס גלילה */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0f172a; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="min-h-screen flex flex-col">
+        <header class="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50 shadow-lg">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-cyan-500 text-white p-2 rounded-lg font-black text-xl">BM</div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-l from-cyan-400 to-blue-500">BidMaster Pro</h1>
+                        <div class="text-xs text-slate-400">Tender Intelligence Platform</div>
+                    </div>
+                </div>
+                <div class="flex gap-4 text-sm hidden md:flex">
+                    <div class="glass-panel px-4 py-2 rounded-lg flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 live-indicator"></div>
+                        <span class="text-slate-300">מחובר לפיד נתוני שוק: ענן, LME, בנק ישראל</span>
+                    </div>
+                </div>
+            </div>
+        </header>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo } = React;
-
-        // רכיב ראשי של האפליקציה
-        const App = () => {
-            // 1. מצב (State) של נתוני השוק בזמן אמת (Mock)
-            const [marketData, setMarketData] = useState({
-                primeRate: 6.0,
-                concretePrice: 420,
-                steelPrice: 4800,
-                laborIndex: 115.2
-            });
-
-            // 2. מצב של נתוני המכרז (כברירת מחדל - מכרז קרית גת)
-            const [projectData, setProjectData] = useState({
-                name: "מכרז 444/2019 - קרית גת מערב",
-                units: 48,
-                avgRevenuePerUnit: 2400000,
-                devCosts: 17000000,
-                feesAndTaxes: 3500000,
-                projectDurationMonths: 60,
-                targetProfitMargin: 15
-            });
-
-            // 3. מצב של ניתוח הנדסי (כמויות)
-            const [engineeringData, setEngineeringData] = useState({
-                concreteVolume: 4500,
-                steelTons: 480,
-                finishesPerUnit: 250000,
-                laborPerUnit: 350000
-            });
-
-            // פונקציית חישוב מרכזית (מתעדכנת בזמן אמת על כל שינוי)
-            const calculations = useMemo(() => {
-                const totalRevenue = projectData.units * projectData.avgRevenuePerUnit;
+        <main class="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 xl:grid-cols-12 gap-6">
+            
+            <aside class="xl:col-span-3 space-y-6">
                 
-                // עלויות ישירות
-                const concreteTotal = engineeringData.concreteVolume * marketData.concretePrice;
-                const steelTotal = engineeringData.steelTons * marketData.steelPrice;
-                const finishesTotal = engineeringData.finishesPerUnit * projectData.units;
-                const laborTotal = engineeringData.laborPerUnit * projectData.units;
-                const hardCosts = concreteTotal + steelTotal + finishesTotal + laborTotal;
+                <div class="glass-panel rounded-xl p-5 border-t-4 border-cyan-500">
+                    <h3 class="font-bold text-white mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                        אינדיקטורים משתנים
+                    </h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">ריבית פריים (%)</span><span id="primeRateDisplay" class="text-cyan-300 font-bold">6.0%</span></div>
+                            <input type="range" id="primeRate" min="1" max="10" step="0.1" value="6.0" oninput="calculate()" class="w-full accent-cyan-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">בטון 30 (₪ לקוב)</span><span id="concretePriceDisplay" class="text-white">420 ₪</span></div>
+                            <input type="range" id="concretePrice" min="300" max="800" step="10" value="420" oninput="calculate()" class="w-full accent-slate-400">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">ברזל בניין (₪ לטון)</span><span id="steelPriceDisplay" class="text-white">4,800 ₪</span></div>
+                            <input type="range" id="steelPrice" min="3500" max="7000" step="100" value="4800" oninput="calculate()" class="w-full accent-slate-400">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-xl p-5 border-t-4 border-indigo-500">
+                    <h3 class="font-bold text-white mb-4">תצורת מכרז (48 יח"ד)</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">הכנסה ממוצעת ליח"ד (₪)</label>
+                            <input type="number" id="avgRevenuePerUnit" value="2400000" oninput="calculate()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="text-xs text-slate-400 block mb-1">עלויות פיתוח ואגרות (FIXED)</label>
+                            <input type="number" id="devCosts" value="17000000" oninput="calculate()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-400">רווח יזמי נדרש</span><span id="targetProfitMarginDisplay" class="text-indigo-300 font-bold">15%</span></div>
+                            <input type="range" id="targetProfitMargin" min="8" max="25" step="1" value="15" oninput="calculate()" class="w-full accent-indigo-500">
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="xl:col-span-9 space-y-6">
                 
-                // עלויות עקיפות ופיתוח
-                const fixedCosts = projectData.devCosts + projectData.feesAndTaxes;
-                const marketingAndManagement = totalRevenue * 0.05; // 5% מההכנסות
-                
-                // עלויות מימון (חישוב פשטני לפי חצי מתקופת הפרויקט כחשיפה ממוצעת)
-                const financingRate = (marketData.primeRate + 1.5) / 100; // פריים + 1.5%
-                const totalFinancedAmount = hardCosts + fixedCosts;
-                const financingCosts = totalFinancedAmount * financingRate * (projectData.projectDurationMonths / 12) * 0.5;
-
-                // רווח יזמי מבוקש
-                const requiredProfit = totalRevenue * (projectData.targetProfitMargin / 100);
-
-                // השורה התחתונה - שווי קרקע מקסימלי להגשה
-                const totalCostsBeforeLand = hardCosts + fixedCosts + marketingAndManagement + financingCosts + requiredProfit;
-                const recommendedBid = totalRevenue - totalCostsBeforeLand;
-
-                // יצירת טקסט המלצה של "הבינה המלאכותית"
-                let aiRecommendation = "";
-                let aiColor = "";
-                if (recommendedBid < 0) {
-                    aiRecommendation = "סכנת הפסד! עלויות הפרויקט בתוספת הרווח המבוקש עולות על ההכנסות. אין לגשת למכרז או שיש להפחית דרישת רווח ולהוזיל עלויות ביצוע דרסטית.";
-                    aiColor = "text-red-400";
-                } else if (recommendedBid < 6110000) { // נניח 6.11M זה מחיר המינימום בקרית גת
-                    aiRecommendation = "אזהרת כדאיות: הצעת המקסימום המומלצת נמוכה ממחיר המינימום הנדרש במכרז (6.11M). השתתפות במכרז תחייב ספיגת ירידה ברווח היזמי מתחת ליעד של " + projectData.targetProfitMargin + "%.";
-                    aiColor = "text-amber-400";
-                } else {
-                    aiRecommendation = "מכרז כלכלי. המודל מאשר הגשה בטווח הירוק. ההמלצה היא להגיש מעט מעל מחיר המינימום, עד לתקרת המקסימום המחושבת, כדי לשמור על שולי הביטחון.";
-                    aiColor = "text-emerald-400";
-                }
-
-                return {
-                    totalRevenue, hardCosts, fixedCosts, marketingAndManagement, financingCosts, requiredProfit, recommendedBid,
-                    breakdown: { concreteTotal, steelTotal, finishesTotal, laborTotal },
-                    aiRecommendation, aiColor
-                };
-            }, [marketData, projectData, engineeringData]);
-
-            // פונקציות עזר לעיצוב מטבע
-            const formatCurrency = (val) => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(val);
-
-            return (
-                <div className="min-h-screen flex flex-col">
-                    {/* Header */}
-                    <header className="bg-slate-900 border-b border-slate-700 p-4 sticky top-0 z-50 shadow-lg">
-                        <div className="max-w-7xl mx-auto flex justify-between items-center">
-                            <div className="flex items-center gap-3">
-                                <div className="bg-cyan-500 text-white p-2 rounded-lg font-black text-xl">BM</div>
-                                <div>
-                                    <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-l from-cyan-400 to-blue-500">BidMaster Pro</h1>
-                                    <div className="text-xs text-slate-400">Tender Intelligence Platform</div>
-                                </div>
-                            </div>
-                            <div className="flex gap-4 text-sm">
-                                <div className="glass-panel px-4 py-2 rounded-lg flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-emerald-500 live-indicator"></div>
-                                    <span className="text-slate-300">מחובר לפיד נתוני שוק: LME, בנק ישראל</span>
-                                </div>
+                <div class="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-cyan-500 to-blue-500"></div>
+                    <h2 class="text-xl md:text-2xl text-slate-300 mb-2">חישוב מודל שווי (Residual Method)</h2>
+                    <h3 class="text-sm text-slate-400 mb-6 uppercase tracking-wider font-bold">השורה התחתונה: הצעת מקסימום מומלצת על הקרקע</h3>
+                    
+                    <div class="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+                        <div>
+                            <div id="recommendedBid" class="text-6xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
+                                טוען נתונים...
                             </div>
                         </div>
-                    </header>
-
-                    <main className="flex-grow p-4 md:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 xl:grid-cols-12 gap-6">
                         
-                        {/* סיידבר - הגדרות ונתוני שוק */}
-                        <aside className="xl:col-span-3 space-y-6">
-                            
-                            {/* פאנל נתוני שוק לייב */}
-                            <div className="glass-panel rounded-xl p-5 border-t-4 border-cyan-500">
-                                <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                                    <svg className="w-5 h-5 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                                    אינדיקטורים - זמן אמת
-                                </h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1"><span className="text-slate-400">ריבית פריים (%)</span><span className="text-cyan-300 font-bold">{marketData.primeRate}%</span></div>
-                                        <input type="range" min="1" max="10" step="0.1" value={marketData.primeRate} onChange={e => setMarketData({...marketData, primeRate: parseFloat(e.target.value)})} className="w-full accent-cyan-500" />
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1"><span className="text-slate-400">בטון 30 (₪ לקוב)</span><span className="text-white">{marketData.concretePrice} ₪</span></div>
-                                        <input type="range" min="300" max="800" step="10" value={marketData.concretePrice} onChange={e => setMarketData({...marketData, concretePrice: parseInt(e.target.value)})} className="w-full accent-slate-400" />
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1"><span className="text-slate-400">ברזל בניין (₪ לטון)</span><span className="text-white">{formatCurrency(marketData.steelPrice)}</span></div>
-                                        <input type="range" min="3500" max="7000" step="100" value={marketData.steelPrice} onChange={e => setMarketData({...marketData, steelPrice: parseInt(e.target.value)})} className="w-full accent-slate-400" />
-                                    </div>
-                                </div>
+                        <div class="bg-slate-800/80 border border-slate-600 rounded-xl p-4 min-w-[250px]">
+                            <div class="text-sm text-slate-400 mb-1">רווח יזמי מוגן מראש</div>
+                            <div id="requiredProfit" class="text-2xl font-bold text-white">₪ 0</div>
+                            <div class="w-full bg-slate-700 h-2 mt-2 rounded-full overflow-hidden">
+                                <div id="profitBar" class="bg-indigo-500 h-full" style="width: 60%"></div>
                             </div>
+                        </div>
+                    </div>
 
-                            {/* פאנל הגדרות פרויקט */}
-                            <div className="glass-panel rounded-xl p-5 border-t-4 border-indigo-500">
-                                <h3 className="font-bold text-white mb-4">תצורת מכרז</h3>
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="text-xs text-slate-400 block mb-1">הכנסה ממוצעת ליח"ד (₪)</label>
-                                        <input type="number" value={projectData.avgRevenuePerUnit} onChange={e => setProjectData({...projectData, avgRevenuePerUnit: parseInt(e.target.value)})} className="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:outline-none focus:border-indigo-500" />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs text-slate-400 block mb-1">עלויות פיתוח ואגרות (FIXED)</label>
-                                        <input type="number" value={projectData.devCosts + projectData.feesAndTaxes} onChange={e => setProjectData({...projectData, devCosts: parseInt(e.target.value), feesAndTaxes: 0})} className="w-full bg-slate-800 border border-slate-600 rounded p-2 text-white focus:outline-none focus:border-indigo-500" />
-                                    </div>
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1"><span className="text-slate-400">רווח יזמי נדרש</span><span className="text-indigo-300 font-bold">{projectData.targetProfitMargin}%</span></div>
-                                        <input type="range" min="8" max="25" step="1" value={projectData.targetProfitMargin} onChange={e => setProjectData({...projectData, targetProfitMargin: parseInt(e.target.value)})} className="w-full accent-indigo-500" />
-                                    </div>
-                                </div>
+                    <div id="aiContainer" class="mt-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700 flex items-start gap-4">
+                        <svg class="w-8 h-8 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <div>
+                            <h4 class="font-bold mb-1">ניתוח כדאיות</h4>
+                            <p id="aiRecommendation" class="text-sm leading-relaxed"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-slate-500">
+                        <div class="text-slate-400 text-xs mb-1">סה"כ הכנסות צפויות</div>
+                        <div id="totalRevenue" class="text-xl font-bold text-white"></div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-pink-500">
+                        <div class="text-slate-400 text-xs mb-1">עלויות בנייה (חומר ועבודה)</div>
+                        <div id="hardCosts" class="text-xl font-bold text-pink-400"></div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-amber-500">
+                        <div class="text-slate-400 text-xs mb-1">פיתוח, אגרות ושיווק</div>
+                        <div id="fixedAndMarketing" class="text-xl font-bold text-amber-400"></div>
+                    </div>
+                    <div class="glass-panel p-4 rounded-xl border-t-2 border-purple-500">
+                        <div class="text-slate-400 text-xs mb-1">עלויות מימון צפויות (מוערך)</div>
+                        <div id="financingCosts" class="text-xl font-bold text-purple-400"></div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-xl p-6">
+                    <h3 class="font-bold text-white mb-6">פירוק עלויות Hard Costs (זמן אמת)</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-300">בטון (4,500 מ"ק)</span>
+                                <span id="concreteTotalDisplay" class="font-bold text-cyan-400"></span>
                             </div>
-
-                        </aside>
-
-                        {/* אזור מרכזי - המלצות ודשבורד */}
-                        <div className="xl:col-span-9 space-y-6">
-                            
-                            {/* קוביית השורה התחתונה */}
-                            <div className="bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 md:p-10 shadow-2xl relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-400 via-cyan-500 to-blue-500"></div>
-                                <h2 className="text-xl md:text-2xl text-slate-300 mb-2">המערכת מעבדת את {projectData.name}...</h2>
-                                <h3 className="text-sm text-slate-400 mb-6 uppercase tracking-wider font-bold">השורה התחתונה: שווי קרקע מקסימלי להגשה</h3>
-                                
-                                <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
-                                    <div>
-                                        <div className={`text-6xl md:text-8xl font-black tracking-tight ${calculations.recommendedBid > 0 ? 'text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500' : 'text-red-500'}`}>
-                                            {calculations.recommendedBid > 0 ? formatCurrency(calculations.recommendedBid) : "0 ₪"}
-                                        </div>
-                                        {calculations.recommendedBid <= 0 && <div className="text-red-400 mt-2 font-bold text-lg">פרויקט הפסדי בנתונים הנוכחיים</div>}
-                                    </div>
-                                    
-                                    <div className="bg-slate-800/80 border border-slate-600 rounded-xl p-4 min-w-[250px]">
-                                        <div className="text-sm text-slate-400 mb-1">רווח יזמי צפוי ({projectData.targetProfitMargin}%)</div>
-                                        <div className="text-2xl font-bold text-white">{formatCurrency(calculations.requiredProfit)}</div>
-                                        <div className="w-full bg-slate-700 h-2 mt-2 rounded-full overflow-hidden">
-                                            <div className="bg-indigo-500 h-full" style={{width: `${projectData.targetProfitMargin * 4}%`}}></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* סיכום AI */}
-                                <div className={`mt-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700 flex items-start gap-4 ${calculations.aiColor}`}>
-                                    <svg className="w-8 h-8 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                    <div>
-                                        <h4 className="font-bold text-white mb-1">ניתוח AI חכם</h4>
-                                        <p className="text-sm leading-relaxed">{calculations.aiRecommendation}</p>
-                                    </div>
-                                </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden"><div id="concreteBar" class="bg-cyan-500 h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-300">ברזל ופלדה (480 טון)</span>
+                                <span id="steelTotalDisplay" class="font-bold text-pink-400"></span>
                             </div>
-
-                            {/* פירוט עלויות - כרטיסיות */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div className="glass-panel p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs mb-1">סה"כ הכנסות צפויות</div>
-                                    <div className="text-xl font-bold text-white">{formatCurrency(calculations.totalRevenue)}</div>
-                                </div>
-                                <div className="glass-panel p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs mb-1">עלויות בנייה (חומר ועבודה)</div>
-                                    <div className="text-xl font-bold text-pink-400">{formatCurrency(calculations.hardCosts)}</div>
-                                </div>
-                                <div className="glass-panel p-4 rounded-xl">
-                                    <div className="text-slate-400 text-xs mb-1">עלויות פיתוח ועקיפות</div>
-                                    <div className="text-xl font-bold text-amber-400">{formatCurrency(calculations.fixedCosts + calculations.marketingAndManagement)}</div>
-                                </div>
-                                <div className="glass-panel p-4 rounded-xl border-b-2 border-purple-500">
-                                    <div className="text-slate-400 text-xs mb-1">עלויות מימון צפויות (מוערך)</div>
-                                    <div className="text-xl font-bold text-purple-400">{formatCurrency(calculations.financingCosts)}</div>
-                                </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden"><div id="steelBar" class="bg-pink-500 h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-300">אלומיניום, חיפוי וגמרים</span>
+                                <span id="finishesTotalDisplay" class="font-bold text-amber-400"></span>
                             </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden"><div id="finishesBar" class="bg-amber-500 h-full transition-all duration-500"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-slate-300">עלויות קבלן ביצוע, עבודה ושלד</span>
+                                <span id="laborTotalDisplay" class="font-bold text-indigo-400"></span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden"><div id="laborBar" class="bg-indigo-500 h-full transition-all duration-500"></div></div>
+                        </div>
+                    </div>
+                </div>
 
-                            {/* תרשים פירוק עלויות בניה משתנות */}
-                            <div className="glass-panel rounded-xl p-6">
-                                <h3 className="font-bold text-white mb-6">פירוק עלויות 'Hard Costs' מבוסס מחירי שוק נוכחיים</h3>
-                                <div className="space-y-4">
-                                    
-                                    <div>
-                                        <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-slate-300">בטון ({engineeringData.concreteVolume} מ"ק)</span>
-                                            <span className="font-bold text-cyan-400">{formatCurrency(calculations.breakdown.concreteTotal)}</span>
-                                        </div>
-                                        <div className="w-full bg-slate-800 h-3 rounded-full overflow-hidden"><div className="bg-cyan-500 h-full" style={{width: `${(calculations.breakdown.concreteTotal/calculations.hardCosts)*100}%`}}></div></div>
-                                    </div>
+            </div>
+        </main>
+    </div>
 
-                                    <div>
-                                        <div className="flex justify
+    <script>
+        // נתוני הנדסה קבועים לפרויקט (48 יח"ד)
+        const engData = {
+            units: 48,
+            concreteVolume: 4500,
+            steelTons: 480,
+            finishesPerUnit: 250000,
+            laborPerUnit: 350000,
+            feesAndTaxes: 3500000,
+            projectDurationMonths: 60
+        };
+
+        const formatCurrency = (val) => new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(val);
+
+        function calculate() {
+            // שאיבת ערכים מהאינפוטים
+            const primeRate = parseFloat(document.getElementById('primeRate').value);
+            const concretePrice = parseInt(document.getElementById('concretePrice').value);
+            const steelPrice = parseInt(document.getElementById('steelPrice').value);
+            const avgRevenuePerUnit = parseInt(document.getElementById('avgRevenuePerUnit').value);
+            const devCosts = parseInt(document.getElementById('devCosts').value);
+            const targetProfitMargin = parseInt(document.getElementById('targetProfitMargin').value);
+
+            // עדכון תצוגת תוויות הסליידרים
+            document.getElementById('primeRateDisplay').innerText = primeRate.toFixed(1) + '%';
+            document.getElementById('concretePriceDisplay').innerText = concretePrice + ' ₪';
+            document.getElementById('steelPriceDisplay').innerText = formatCurrency(steelPrice);
+            document.getElementById('targetProfitMarginDisplay').innerText = targetProfitMargin + '%';
+
+            // חישובים פיננסיים
+            const totalRevenue = engData.units * avgRevenuePerUnit;
+            
+            const concreteTotal = engData.concreteVolume * concretePrice;
+            const steelTotal = engData.steelTons * steelPrice;
+            const finishesTotal = engData.finishesPerUnit * engData.units;
+            const laborTotal = engData.laborPerUnit * engData.units;
+            const hardCosts = concreteTotal + steelTotal + finishesTotal + laborTotal;
+            
+            const fixedCosts = devCosts + engData.feesAndTaxes;
+            const marketingAndManagement = totalRevenue * 0.05; // 5% שיווק וניהול
+            
+            const financingRate = (primeRate + 1.5) / 100;
+            const totalFinancedAmount = hardCosts + fixedCosts;
+            const financingCosts = totalFinancedAmount * financingRate * (engData.projectDurationMonths / 12) * 0.5;
+
+            const requiredProfit = totalRevenue * (targetProfitMargin / 100);
+            const totalCostsBeforeLand = hardCosts + fixedCosts + marketingAndManagement + financingCosts + requiredProfit;
+            const recommendedBid = totalRevenue - totalCostsBeforeLand;
+
+            // עדכון השורה התחתונה בממשק
+            const bidEl = document.getElementById('recommendedBid');
+            const aiEl = document.getElementById('aiRecommendation');
+            const aiContainer = document.getElementById('aiContainer');
+
+            if (recommendedBid < 0) {
+                bidEl.innerText = "0 ₪";
+                bidEl.className = "text-6xl md:text-8xl font-black tracking-tight text-red-500";
+                aiEl.innerText = "סכנת הפסד! עלויות הפרויקט בתוספת הרווח המבוקש עולות על ההכנסות. אין לגשת למכרז או שיש להפחית דרישת רווח/להוזיל עלויות ביצוע דרסטית.";
+                aiContainer.className = "mt-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700 flex items-start gap-4 text-red-400";
+            } else {
+                bidEl.innerText = formatCurrency(recommendedBid);
+                bidEl.className = "text-6xl md:text-8xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500";
+                if (recommendedBid < 6110000) {
+                    aiEl.innerText = "אזהרת כדאיות: הצעת המקסימום המומלצת נמוכה ממחיר המינימום הנדרש במכרז (6.11M). השתתפות במכרז תחייב ירידה ברווח היזמי מתחת ליעד של " + targetProfitMargin + "%.";
+                    aiContainer.className = "mt-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700 flex items-start gap-4 text-amber-400";
+                } else {
+                    aiEl.innerText = "מכרז כלכלי. המודל מאשר הגשה בטווח הירוק. ההמלצה היא להגיש מעט מעל מחיר המינימום, עד לתקרת המקסימום המחושבת, כדי לשמור על שולי הביטחון והרווח המבוקש.";
+                    aiContainer.className = "mt-8 p-4 rounded-xl bg-slate-800/50 border border-slate-700 flex items-start gap-4 text-emerald-400";
+                }
+            }
+
+            // עדכון שאר הנתונים
+            document.getElementById('requiredProfit').innerText = formatCurrency(requiredProfit);
+            document.getElementById('profitBar').style.width = (targetProfitMargin * 4) + '%'; // ויזואליזציה פשוטה לבר
+
+            document.getElementById('totalRevenue').innerText = formatCurrency(totalRevenue);
+            document.getElementById('hardCosts').innerText = formatCurrency(hardCosts);
+            document.getElementById('fixedAndMarketing').innerText = formatCurrency(fixedCosts + marketingAndManagement);
+            document.getElementById('financingCosts').innerText = formatCurrency(financingCosts);
+
+            // עדכון ברי חיפוי העלויות
+            document.getElementById('concreteTotalDisplay').innerText = formatCurrency(concreteTotal);
+            document.getElementById('concreteBar').style.width = (concreteTotal / hardCosts * 100) + '%';
+            
+            document.getElementById('steelTotalDisplay').innerText = formatCurrency(steelTotal);
+            document.getElementById('steelBar').style.width = (steelTotal / hardCosts * 100) + '%';
+            
+            document.getElementById('finishesTotalDisplay').innerText = formatCurrency(finishesTotal);
+            document.getElementById('finishesBar').style.width = (finishesTotal / hardCosts * 100) + '%';
+            
+            document.getElementById('laborTotalDisplay').innerText = formatCurrency(laborTotal);
+            document.getElementById('laborBar').style.width = (laborTotal / hardCosts * 100) + '%';
+        }
+
+        // הרצה ראשונית של המודל כשהמסך עולה
+        window.onload = calculate;
+    </script>
+</body>
+</html>
